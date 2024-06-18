@@ -1,0 +1,106 @@
+
+import json
+import os
+
+TASKS_FILE = 'tasks.json'
+
+class ToDoList:
+    def __init__(self):
+        self.tasks = self.load_tasks()
+
+    def load_tasks(self):
+        if os.path.exists(TASKS_FILE):
+            with open(TASKS_FILE, 'r') as file:
+                return json.load(file)
+        return []
+
+    def save_tasks(self):
+        with open(TASKS_FILE, 'w') as file:
+            json.dump(self.tasks, file, indent=4)
+
+    def add_task(self, description, due_date, priority):
+        task = {
+            'description': description,
+            'due_date': due_date,
+            'priority': priority,
+            'completed': False
+        }
+        self.tasks.append(task)
+        self.save_tasks()
+
+    def update_task(self, index, description=None, due_date=None, priority=None):
+        if 0 <= index < len(self.tasks):
+            if description:
+                self.tasks[index]['description'] = description
+            if due_date:
+                self.tasks[index]['due_date'] = due_date
+            if priority:
+                self.tasks[index]['priority'] = priority
+            self.save_tasks()
+
+    def delete_task(self, index):
+        if 0 <= index < len(self.tasks):
+            self.tasks.pop(index)
+            self.save_tasks()
+
+    def view_tasks(self):
+        for index, task in enumerate(self.tasks):
+            status = 'Done' if task['completed'] else 'Pending'
+            print(f"{index}. {task['description']} (Due: {task['due_date']}, Priority: {task['priority']}, Status: {status})")
+
+    def mark_task_complete(self, index):
+        if 0 <= index < len(self.tasks):
+            self.tasks[index]['completed'] = True
+            self.save_tasks()
+
+
+todo_list = ToDoList()
+
+def menu():
+    print("\nTo-Do List Application")
+    print("1. View Tasks")
+    print("2. Add Task")
+    print("3. Update Task")
+    print("4. Delete Task")
+    print("5. Mark Task as Complete")
+    print("6. Exit")
+
+def add_task():
+    description = input("Enter task description: ")
+    due_date = input("Enter due date (YYYY-MM-DD): ")
+    priority = input("Enter priority (Low, Medium, High): ")
+    todo_list.add_task(description, due_date, priority)
+
+def update_task():
+    index = int(input("Enter task index to update: "))
+    description = input("Enter new description (leave blank to keep current): ")
+    due_date = input("Enter new due date (leave blank to keep current): ")
+    priority = input("Enter new priority (leave blank to keep current): ")
+    todo_list.update_task(index, description, due_date, priority)
+
+def delete_task():
+    index = int(input("Enter task index to delete: "))
+    todo_list.delete_task(index)
+
+def mark_task_complete():
+    index = int(input("Enter task index to mark as complete: "))
+    todo_list.mark_task_complete(index)
+
+
+while True:
+    menu()
+    choice = input("Enter your choice: ")
+    if choice == '1':
+        todo_list.view_tasks()
+    elif choice == '2':
+        add_task()
+    elif choice == '3':
+        update_task()
+    elif choice == '4':
+        delete_task()
+    elif choice == '5':
+        mark_task_complete()
+    elif choice == '6':
+        break
+    else:
+        print("Invalid choice. Please try again.")
